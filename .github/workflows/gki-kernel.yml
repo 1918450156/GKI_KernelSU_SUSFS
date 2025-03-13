@@ -309,90 +309,90 @@ jobs:
             echo "CONFIG_KSU_WITH_KPROBES=n" >> ./common/arch/arm64/configs/gki_defconfig
           fi
 
-echo“更改为配置目录：$CONFIG……”
-mkdir bootimgs
-回声
-echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
-echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./common/arch/arm64/configs/gki_defconfig"CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y"echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
-回声"CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y">> ./common/arch/arm64/configs/gki_defconfig
-回声"CONFIG_KSU_SUSFS_SUS_KSTAT=y">>./common/arch/arm64/configs/gki_defconfig
-回声"CONFIG_KSU_SUSFS_SUS_OVERLAYFS=N">>./common/arch/arm64/configs/gki_defconfig
-回声"CONFIG_KSU_SUSFS_TRY_UMOUNT=Y">>./common/arch/arm64/configs/gki_defconfig
-回声"CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=Y">>./common/arch/arm64/configs/gki_defconfig
-回声"CONFIG_KSU_SUSFS_SPOOF_UNAME=y">>./common/arch/arm64/configs/gki_defconfig
-回声"CONFIG_KSU_SUSFS_ENABLE_LOG=y">>./common/arch/arm64/configs/gki_defconfig
-回声"CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=Y">>./common/arch/arm64/configs/gki_defconfig
-回声"CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y">>./common/arch/arm64/configs/gki_defconfig
-回声"CONFIG_KSU_SUSFS_OPEN_REDIRECT=y">>./common/arch/arm64/configs/gki_defconfig
+          # Add SUSFS configuration settings
+          echo "CONFIG_KSU_SUSFS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_SUS_PATH=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_SUS_OVERLAYFS=n" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> ./common/arch/arm64/configs/gki_defconfig
 
-回声[>>./common/arch/arm64/configs/gki_defconfig{{inputs.kernelsu_variant}}
-$"CONFIG_KSU_SUSFS_SUS_SU=N"=[下一步]]；
-回声
->>./common/arch/arm64/configs/gki_defconfig"CONFIG_KSU_SUSds_SUS_SU=y"其他的
-回声
+          if [ "${{ inputs.kernelsu_variant }}" == "Next" ]; then
+            echo "CONFIG_KSU_SUSFS_SUS_SU=n" >> ./common/arch/arm64/configs/gki_defconfig
+          else
+            echo "CONFIG_KSU_SUSFS_SUS_SU=y" >> ./common/arch/arm64/configs/gki_defconfig
+          fi
           
->> ./common/arch/arm64/configs/gki_defconfig
-菲“CONFIG_TMPFS_XATTR=you you you”#
-回声"CONFIG_TMPFS_POSIX_ACL=y">>./common/arch/arm64/configs/gki_defconfig
+          # Add additional tmpfs config setting
+          echo "CONFIG_TMPFS_XATTR=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_TMPFS_POSIX_ACL=y" >> ./common/arch/arm64/configs/gki_defconfig
 
-回声
->>./common/arch/arm64/configs/gki_defconfig"CONFIG_IP_NF_TARGET_TTL=y"#添加附加配置设置
-echo "CONFIG_IP6_NF_TARGET_HL=y" >> ./common/arch/arm64/configs/gki_defconfig
-echo "CONFIG_IP6_NF_MATCH_HL=y" >> ./common/arch/arm64/configs/gki_defconfig
+          # Add additional config setting
+          echo "CONFIG_IP_NF_TARGET_TTL=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_IP6_NF_TARGET_HL=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_IP6_NF_MATCH_HL=y" >> ./common/arch/arm64/configs/gki_defconfig
 
           # Remove check_defconfig
           sed -i 's/check_defconfig//' ./common/build.config.gki
       
-      - 名字: 内核名称
+      - name: Config Kernel Name
         #if: ${{ inputs.kernel_version != '6.6' }}
-跑: |
-cd "$CONFIG/common"
-#Add bbrv3配置设置
-#cp ../../kernel_patches/bbr/tcp_bbr.c ./net/ipv4/
+        run: |
+          cd "$CONFIG/common"
+          # Add bbrv3 config setting
+          #cp ../../kernel_patches/bbr/tcp_bbr.c ./net/ipv4/
 
-光盘。
-echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig
-echo "CONFIG_TCP_CONG_BBR=y" >> ./common/arch/arm64/configs/gki_defconfig
-echo "CONFIG_NET_SCH_FQ=y" >> ./common/arch/arm64/configs/gki_defconfig
-echo "CONFIG_TCP_CONG_BIC=n" >> ./common/arch/arm64/configs/gki_defconfig
-echo "CONFIG_TCP_CONG_WESTWOOD=n" >> ./common/arch/arm64/configs/gki_defconfig
-echo "CONFIG_TCP_CONG_HTCP=n" >> ./common/arch/arm64/configs/gki_defconfig
+          cd ..
+          echo "CONFIG_TCP_CONG_ADVANCED=y" >> ./common/arch/arm64/configs/gki_defconfig 
+          echo "CONFIG_TCP_CONG_BBR=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_NET_SCH_FQ=y" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_TCP_CONG_BIC=n" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_TCP_CONG_WESTWOOD=n" >> ./common/arch/arm64/configs/gki_defconfig
+          echo "CONFIG_TCP_CONG_HTCP=n" >> ./common/arch/arm64/configs/gki_defconfig 
 
 
-      - 名字: 内核名称
-跑: |
-echo“更改为配置目录：$CONFIG……”
-cd "$CONFIG"
+      - name: Config Kernel Name
+        run: |
+          echo "Changing to configuration directory: $CONFIG..."
+          cd "$CONFIG"
 
-sed -i '$s|echo "\$res"|echo "\$res-Moran+"|' ./common/scripts/setlocalversion
+          sed -i '$s|echo "\$res"|echo "\$res-Moran+"|' ./common/scripts/setlocalversion
 
-#运行perl命令来修改UTS_VERSION
-perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 SMP PREEMPT Sat Apr 20 04:20:00 UTC 2024"}' ./common/scripts/mkcompile_h
+          # Run perl command to modify UTS_VERSION
+          perl -pi -e 's{UTS_VERSION="\$\(echo \$UTS_VERSION \$CONFIG_FLAGS \$TIMESTAMP \| cut -b -\$UTS_LEN\)"}{UTS_VERSION="#1 SMP PREEMPT Sat Apr 20 04:20:00 UTC 2024"}' ./common/scripts/mkcompile_h
 
-构建内核……
-如果[-f"build/build.sh"]；那么
-sed -i 's/-dirty//' ./common/scripts/setlocalversion
-#LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="/usr/bin/ccache clang"
-其他的
-rm -rf ./common/android/abi_gki_protected_exports_*
-sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
-sed -E -i '/^CONFIG_LOCALVERSION=/ s/(.*)"$/\1-Wild+"/' ./common/arch/arm64/configs/gki_defconfig
-#tools/bazel build --config=fast --lto=${{ inputs.lto_type }} //common:kernel_aarch64_dist
-菲
+          echo "Building the kernel..."
+          if [ -f "build/build.sh" ]; then
+            sed -i 's/-dirty//' ./common/scripts/setlocalversion
+            #LTO=${{ inputs.lto_type }} BUILD_CONFIG=common/build.config.gki.aarch64 build/build.sh CC="/usr/bin/ccache clang"
+          else
+            rm -rf ./common/android/abi_gki_protected_exports_*
+            sed -i "/stable_scmversion_cmd/s/-maybe-dirty//g" ./build/kernel/kleaf/impl/stamp.bzl
+            sed -E -i '/^CONFIG_LOCALVERSION=/ s/(.*)"$/\1-Wild+"/' ./common/arch/arm64/configs/gki_defconfig
+            #tools/bazel build --config=fast --lto=${{ inputs.lto_type }} //common:kernel_aarch64_dist
+          fi
 
-      - 名字: 拷贝文件
-跑: |
-cp -r $CONFIG source-patched-$CONFIG
+      - name: Copy file
+        run: |
+          cp -r $CONFIG source-patched-$CONFIG
 
-      - 名字: 上传神器
-如果: ${{inputs.make_release == false}}
-用途: actions/upload-artifact@v4
-与:
-名字: 来源-补丁-${{ env.CONFIG }}
-路径: 来源-补丁-${{ env.CONFIG }}
+      - name: Upload artifact
+        if: ${{ inputs.make_release == false }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-patched-${{ env.CONFIG }}
+          path: source-patched-${{ env.CONFIG }}
 
-      - 名字: 删除文件
+      - name: Remove file
         run: |
           rm -rf source-patched-$CONFIG
 
