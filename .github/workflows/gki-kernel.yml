@@ -279,8 +279,10 @@ jobs:
 
           # Change to common directory and apply common SUSFS patch
           cd ../common
-          patch -p1 < 50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch || true
 
+          patch -p1 < 50_add_susfs_in_gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch || true
+          curl -LSs https://github.com/zzh20188/GKI_KernelSU_SUSFS/raw/refs/heads/fix/fix6.6.patch -o test.patch
+          patch -p1 < test.patch || true
       - name: 应用新的HOOKS补丁
         run: |
           echo "Changing to configuration directory: $CONFIG..."
