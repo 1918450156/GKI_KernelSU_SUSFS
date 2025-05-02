@@ -329,9 +329,9 @@ jobs:
             sed -i 's/CONFIG_ZRAM=m/CONFIG_ZRAM=y/g' "$CONFIG_FILE"
           fi
 
-          if [ "${{ inputs.kernel_version }}" = "6.1" ] || [ "${{ inputs.kernel_version }}" = "6.6" ]; then
+          if [ "${{ inputs.android_version }}" = "android14" ] || [ "${{ inputs.android_version }}" = "android15" ]; then
             sed -i 's/"drivers\/block\/zram\/zram\.ko",//g; s/"mm\/zsmalloc\.ko",//g' "$CONFIG/common/modules.bzl"
-            echo '6.1|6.6:已修复zram&zsmalloc'
+            echo 'Android14_Bazel:已修复zram&zsmalloc'
           elif [ "${{ inputs.kernel_version }}" = "5.15" ]; then
             rm "$CONFIG/common/android/gki_aarch64_modules"
             touch "$CONFIG/common/android/gki_aarch64_modules"
