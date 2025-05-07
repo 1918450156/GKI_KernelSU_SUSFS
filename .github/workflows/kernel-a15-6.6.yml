@@ -22,6 +22,11 @@ on:
         required: false
         type: string
         default: ""
+      use_zram:
+        description: '是否开启增加更多ZRAM算法?'
+        required: true
+        type: boolean
+        default: true
 
 jobs:
   build-kernel-a15-6-6-kernelsu-susfs:
@@ -58,3 +63,4 @@ jobs:
       kernelsu_variant: ${{ inputs.kernelsu_variant || 'Next' }}
       kernelsu_branch: ${{ inputs.kernelsu_branch || 'Dev' }}
       version: ${{ inputs.version || '' }}
+      use_zram: ${{ inputs.use_zram }}
