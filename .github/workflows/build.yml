@@ -40,6 +40,10 @@ on:
         required: false
         type: string
         default: "Sun Dec 01 08:10:00 UTC 2024"
+      source_mode:
+        required: false
+        type: string
+        default: "latest"
 
       # ==================== 功能开关 ====================
       use_zram:
@@ -66,6 +70,10 @@ on:
         required: false
         type: boolean
         default: false
+      fast_mode:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build-kernel:
@@ -77,6 +85,7 @@ jobs:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
       CCACHE_HARDLINK: "true"
+      SOURCE_CACHE_DIR: ${{ runner.temp }}/kernel-source-${{ inputs.android_version }}-${{ inputs.kernel_version }}-${{ inputs.os_patch_level }}
 
     steps:
       - name: 构建信息摘要
@@ -91,6 +100,8 @@ jobs:
           echo "KSU 变体      : ${{ inputs.ksu_variant }}"
           echo "KSU 分支      : ${{ inputs.ksu_branch }}"
           echo "构建时间      : ${{ inputs.build_time }}"
+          echo "Source Mode    : ${{ inputs.source_mode }}"
+          echo "Fast Mode      : ${{ inputs.fast_mode }}"
           echo "SUSFS 状态    : ${{ inputs.enable_susfs }}"
           echo "ZRAM 增强     : ${{ inputs.use_zram }}"
           echo "BBG 补丁      : ${{ inputs.use_bbg }}"
@@ -166,13 +177,23 @@ jobs:
           ccache --set-config=compression=true
           echo "CCACHE_DIR=$HOME/.ccache" >> $GITHUB_ENV
 
-      - name: 恢复 ccache 缓存
-        uses: actions/cache@v5
+      - name: Restore ccache cache
+        id: ccache-restore
+        uses: actions/cache/restore@v5
         with:
           path: ~/.ccache
-          key: ${{ inputs.android_version }}-${{ inputs.kernel_version }}-${{ inputs.sub_level }}-ccache-${{ github.sha }}
+          key: ${{ inputs.android_version }}-${{ inputs.kernel_version }}-${{ inputs.sub_level }}-${{ inputs.ksu_variant }}-ccache-${{ runner.os }}-${{ github.ref_name }}-${{ github.run_id }}
           restore-keys: |
-            ${{ inputs.android_version }}-${{ inputs.kernel_version }}-${{ inputs.sub_level }}-ccache-
+            ${{ inputs.android_version }}-${{ inputs.kernel_version }}-${{ inputs.sub_level }}-${{ inputs.ksu_variant }}-ccache-${{ runner.os }}-${{ github.ref_name }}-
+            ${{ inputs.android_version }}-${{ inputs.kernel_version }}-${{ inputs.sub_level }}-ccache-${{ runner.os }}-
+
+      - name: Restore kernel source cache
+        if: inputs.fast_mode && inputs.source_mode == 'cache'
+        id: source-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ env.SOURCE_CACHE_DIR }}
+          key: kernel-source-${{ inputs.android_version }}-${{ inputs.kernel_version }}-${{ inputs.os_patch_level }}-v1
 
       - name: 缓存工具链
         id: cache-toolchain
@@ -248,6 +269,12 @@ jobs:
       - name: 初始化并同步内核源码
         working-directory: ${{ env.KERNEL_ROOT }}
         run: |
+          if [ "${{ inputs.fast_mode }}" = "true" ] && [ "${{ inputs.source_mode }}" = "cache" ] && [ "${{ steps.source-cache.outputs.cache-hit }}" = "true" ] && [ -d "${SOURCE_CACHE_DIR}/common" ]; then
+            echo "Using cached kernel source from ${SOURCE_CACHE_DIR}"
+            cp -a "${SOURCE_CACHE_DIR}/." .
+            exit 0
+          fi
+
           git clone https://github.com/LineageOS/android_prebuilts_gcc_linux-x86_aarch64_aarch64-linux-gnu-6.4.1.git gcc
 
           FORMATTED_BRANCH="${{ inputs.android_version }}-${{ inputs.kernel_version }}-${{ inputs.os_patch_level }}"
@@ -265,6 +292,20 @@ jobs:
 
           $REPO --trace sync -c -j$(nproc --all) --no-tags --fail-fast
           echo "REMOTE_BRANCH=$REMOTE_BRANCH" >> $GITHUB_ENV
+
+          if [ "${{ inputs.fast_mode }}" = "true" ] && [ "${{ inputs.source_mode }}" = "cache" ]; then
+            rm -rf "${SOURCE_CACHE_DIR}"
+            mkdir -p "${SOURCE_CACHE_DIR}"
+            cp -a ./. "${SOURCE_CACHE_DIR}/"
+          fi
+
+      - name: Save kernel source cache
+        if: inputs.fast_mode && inputs.source_mode == 'cache' && steps.source-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ env.SOURCE_CACHE_DIR }}
+          key: kernel-source-${{ inputs.android_version }}-${{ inputs.kernel_version }}-${{ inputs.os_patch_level }}-v1
+
 
       - name: 应用 Stock Config 伪装
         run: |
@@ -1155,6 +1196,13 @@ jobs:
               echo "$REL" >> "$REJECTS_DIR/index.txt"
             done
           fi
+
+      - name: Save ccache cache
+        if: always() && steps.ccache-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: ~/.ccache
+          key: ${{ inputs.android_version }}-${{ inputs.kernel_version }}-${{ inputs.sub_level }}-${{ inputs.ksu_variant }}-ccache-${{ runner.os }}-${{ github.ref_name }}-${{ github.run_id }}
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v6

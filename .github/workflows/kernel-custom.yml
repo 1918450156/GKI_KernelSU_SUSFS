@@ -78,6 +78,22 @@ on:
         required: false
         type: string
         default: "Sun Dec 01 08:10:00 UTC 2024"
+      build_mode:
+        description: "Build mode"
+        required: true
+        type: choice
+        options:
+          - fast
+          - standard
+        default: fast
+      source_mode:
+        description: "Kernel source mode"
+        required: true
+        type: choice
+        options:
+          - cache
+          - latest
+        default: cache
 
       # ==================== 功能开关 ====================
       use_zram:
@@ -126,6 +142,8 @@ jobs:
       ksu_branch: ${{ inputs.kernelsu_branch }}
       version: ${{ inputs.version || '' }}
       build_time: ${{ inputs.build_time || '' }}
+      source_mode: ${{ inputs.source_mode }}
+      fast_mode: ${{ inputs.build_mode == 'fast' }}
       use_zram: ${{ inputs.use_zram }}
       use_bbg: ${{ inputs.use_bbg }}
       use_kpm: ${{ inputs.use_kpm }}
