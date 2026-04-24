@@ -455,6 +455,24 @@ jobs:
             echo "KSU_LATEST_COMMIT_DATE=未知" >> $GITHUB_ENV
           fi
 
+
+      - name: Fix ReSukiSU SUSFS macro bug
+        if: inputs.ksu_variant == 'ReSukiSU'
+        working-directory: ${{ env.KERNEL_ROOT }}
+        run: |
+          TARGET_FILE="KernelSU/kernel/runtime/ksud_integration.c"
+          if [ ! -f "$TARGET_FILE" ]; then
+            TARGET_FILE="common/drivers/kernelsu/runtime/ksud_integration.c"
+          fi
+
+          if [ ! -f "$TARGET_FILE" ]; then
+            echo "ksud_integration.c not found, skip ReSukiSU hotfix"
+            exit 0
+          fi
+
+          sed -i 's/^#define ksu_init_rc_hook ksu_init_rc_hook_key_false$/#define ksu_init_rc_hook ksu_is_init_rc_hook_enabled/' "$TARGET_FILE"
+          echo "ReSukiSU hotfix applied: $TARGET_FILE"
+
       - name: 配置 SukiSU 管理器信息
         if: inputs.ksu_variant == 'SukiSU'
         working-directory: ${{ env.KERNEL_ROOT }}/KernelSU
