@@ -85,7 +85,6 @@ jobs:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
       CCACHE_NOHASHDIR: "true"
       CCACHE_HARDLINK: "true"
-      SOURCE_CACHE_DIR: ${{ runner.temp }}/kernel-source-${{ inputs.android_version }}-${{ inputs.kernel_version }}-${{ inputs.os_patch_level }}
 
     steps:
       - name: 构建信息摘要
@@ -109,6 +108,10 @@ jobs:
           echo "Re-Kernel     : ${{ inputs.use_rekernel }}"
           echo "Stock Config  : 自动检测 config/stock_defconfig"
           echo "========================================"
+
+      - name: 初始化缓存路径
+        run: |
+          echo "SOURCE_CACHE_DIR=$RUNNER_TEMP/kernel-source-${{ inputs.android_version }}-${{ inputs.kernel_version }}-${{ inputs.os_patch_level }}" >> $GITHUB_ENV
 
       - name: 清理磁盘空间
         uses: endersonmenezes/free-disk-space@v3
